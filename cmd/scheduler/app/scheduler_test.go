@@ -18,6 +18,7 @@ package app
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"testing"
 	"time"
@@ -27,6 +28,7 @@ import (
 
 	"github.com/karmada-io/karmada/cmd/scheduler/app/options"
 	"github.com/karmada-io/karmada/pkg/util/names"
+	testingutil "github.com/karmada-io/karmada/pkg/util/testing"
 )
 
 func TestNewSchedulerCommand(t *testing.T) {
@@ -66,8 +68,12 @@ func TestSchedulerCommandFlagParsing(t *testing.T) {
 }
 
 func TestServeHealthzAndMetrics(t *testing.T) {
-	healthAddress := "127.0.0.1:8082"
-	metricsAddress := "127.0.0.1:8083"
+	// Capture free ports for health and metrics addresses.
+	host := "127.0.0.1"
+	ports, err := testingutil.GetFreePorts(host, 2)
+	require.NoError(t, err)
+	healthAddress := fmt.Sprintf("%s:%d", host, ports[0])
+	metricsAddress := fmt.Sprintf("%s:%d", host, ports[1])
 
 	go serveHealthzAndMetrics(healthAddress, metricsAddress)
 
